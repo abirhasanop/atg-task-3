@@ -1,18 +1,22 @@
-import { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
+import { ColorRing } from 'react-loader-spinner';
 import './App.css';
 
 function App() {
-  const [users, setUsers] = useState([])
+  // const [users, setUsers] = useState([])
   const [sideUser, setSideUser] = useState({})
-
   const { profile, Bio, jobTitle } = sideUser
 
-  useEffect(() => {
-    fetch(`https://602e7c2c4410730017c50b9d.mockapi.io/users`)
-      .then(res => res.json())
-      .then(data => setUsers(data))
-  }, [])
+  const { data: users = [], isLoading } = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await fetch(`https://602e7c2c4410730017c50b9d.mockapi.io/users`)
+      const data = await res.json()
+      return data
+    }
+  })
+
 
   const handleUser = (id = 2) => {
     console.log(id);
@@ -21,7 +25,19 @@ function App() {
       .then(data => setSideUser(data))
   }
 
-  // console.log(profile.firstName);
+  if (isLoading) {
+    return <div className='w-full flex min-h-screen items-center justify-center'>
+      <ColorRing
+        visible={true}
+        height="80"
+        width="80"
+        ariaLabel="blocks-loading"
+        wrapperStyle={{}}
+        wrapperClass="blocks-wrapper"
+        colors={['#b8c480', '#B2A3B5', '#F4442E', '#51E5FF', '#429EA6']}
+      />
+    </div>
+  }
 
   return (
     <div className="container mx-auto">
